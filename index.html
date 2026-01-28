@@ -26,15 +26,14 @@
       transition: all 0.3s ease;
     }
 
-    /* Mobile Responsive Adjustments */
     @media (max-width: 900px) {
       .app-container {
-        grid-template-columns: 1fr; /* Stack panels vertically */
+        grid-template-columns: 1fr;
         padding: 15px;
         gap: 20px;
       }
       body { padding: 5px; }
-      .entry-panel { order: 1; } /* Input always on top */
+      .entry-panel { order: 1; }
       .bill-panel { order: 2; min-height: auto; }
     }
 
@@ -212,7 +211,7 @@
         document.getElementById('pSearch').value = item.name;
         document.getElementById('pMRP').value = item.price;
         s.innerHTML = '';
-        document.getElementById('pQty').focus();
+        // Removed the pQty.focus() from here to prevent jumping to quantity section
       };
       s.appendChild(d);
     });
