@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>🛒 mobile invoice</title>
+  <title>🛒 Mobile Invoice</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
@@ -26,15 +26,10 @@
       transition: all 0.3s ease;
     }
 
-    /* Mobile Responsive Adjustments */
     @media (max-width: 900px) {
-      .app-container {
-        grid-template-columns: 1fr; /* Stack panels vertically */
-        padding: 15px;
-        gap: 20px;
-      }
+      .app-container { grid-template-columns: 1fr; padding: 15px; gap: 20px; }
       body { padding: 5px; }
-      .entry-panel { order: 1; } /* Input always on top */
+      .entry-panel { order: 1; }
       .bill-panel { order: 2; min-height: auto; }
     }
 
@@ -198,6 +193,7 @@
     } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; }
   }
 
+  // --- MODIFIED SEARCH LISTENER ---
   document.getElementById('pSearch').addEventListener('input', (e) => {
     let q = e.target.value.toLowerCase();
     let s = document.getElementById('suggestions');
@@ -206,10 +202,11 @@
     inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,8).forEach(item => {
       let d = document.createElement('div');
       d.className = 'suggestion-item';
-      d.innerText = `${item.name} (₹${item.price})`;
+      // Only show name, removed (₹${item.price})
+      d.innerText = `${item.name}`; 
       d.onclick = () => {
         document.getElementById('pSearch').value = item.name;
-        document.getElementById('pMRP').value = item.price;
+        document.getElementById('pMRP').value = item.price; // Still auto-fills the price box
         s.innerHTML = '';
         document.getElementById('pQty').focus();
       };
@@ -279,7 +276,6 @@
     localStorage.setItem('theme', target);
   }
 
- 
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 
