@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🛒 mobile invoice</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    :root { 
+      --primary: #1a73e8; --success: #34a853; --danger: #d93025; 
+      --bg: #f8f9fa; --card-bg: #ffffff; --text: #202124; --border: #dadce0;
+      --table-text: #000000;
+    }
+    
+    [data-theme="dark"] {
+      --bg: #121212; --card-bg: #1e1e1e; --text: #e8eaed; --border: #3c4043;
+      --table-text: #e8eaed;
+    }
+
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; transition: 0.3s; }
+    
+    .app-container { 
+      background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
+      max-width: 1400px; margin: auto; display: grid; grid-template-columns: 420px 1fr; gap: 25px; padding: 25px;
+      transition: all 0.3s ease;
+    }
+
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 900px) {
+      .app-container {
+        grid-template-columns: 1fr; /* Stack panels vertically */
+        padding: 15px;
+        gap: 20px;
+      }
+      body { padding: 5px; }
+      .entry-panel { order: 1; } /* Input always on top */
+      .bill-panel { order: 2; min-height: auto; }
+    }
+
+    .app-container:fullscreen {
+      max-width: 100vw; width: 100vw; height: 100vh; border-radius: 0;
+      overflow-y: auto; padding: 40px; box-sizing: border-box;
+    }
+
+    .input-group { background: var(--bg); padding: 18px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; position: relative; }
+
+    label { font-size: 0.75rem; font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary); text-transform: uppercase; }
+
+    input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box; margin-bottom: 12px; background: var(--card-bg); color: var(--text); }
+    
+    #suggestions { 
+      position: absolute; width: 90%; background: var(--card-bg); border: 1px solid var(--border); 
+      max-height: 250px; overflow-y: auto; z-index: 1000; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .suggestion-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .suggestion-item:hover { background: var(--primary); color: white; }
+
+    .unit-selector { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+    .unit-btn { flex: 1; min-width: 60px; padding: 12px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; transition: 0.2s; }
+    .unit-btn:hover { background: var(--primary); color: white; }
+    .unit-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .add-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    .print-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    
+    .top-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: flex-end; }
+    .ctrl-btn { padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; font-weight: 500; }
+
+    .bill-panel { padding: 20px; background: var(--card-bg); color: var(--table-text); border-radius: 8px; min-height: 600px; border: 1px solid var(--border); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { text-align: left; border-bottom: 2px solid var(--table-text); padding: 8px; font-size: 0.85rem; }
+    td { padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+    .summary-box { margin-top: 20px; border-top: 2px solid var(--table-text); padding-top: 10px; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .grand-total { font-size: 1.8rem; font-weight: bold; text-align: right; margin-top: 10px; border-top: 1px solid var(--table-text); padding-top: 5px; }
+    
+    .qr-container { text-align: center; margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
+    #qrcode img { border: 5px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .qr-label { font-size: 10px; font-weight: bold; margin-top: 5px; text-transform: uppercase; color: var(--table-text); }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { padding: 0; background: white; color: black; }
+      .app-container { display: block !important; box-shadow: none; border: none; width: 100%; }
+      .bill-panel { border: none; width: 80mm; margin: auto; padding: 0; background: white; color: black; }
+      th, td { font-family: monospace; font-size: 12px; color: black; border-color: black; }
+      .grand-total { font-size: 1.4rem; color: black; border-top: 1px solid black; }
+      .summary-box { border-top: 1px solid black; }
+      .qr-label { color: black; }
+       @page { size: 80mm auto; margin: 5mm; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-controls no-print">
+  <button class="ctrl-btn" onclick="toggleTheme()">🌓 Theme</button>
+</div>
+
+<div class="app-container" id="appMain">
+  <div class="entry-panel no-print">
+    <h2 style="color: var(--primary); margin-top: 0;">🛒 Billing Dashboard</h2>
+    <div id="sync-status" style="font-size: 12px; margin-bottom: 10px;">🔄 Syncing Inventory...</div>
+
+    <div class="input-group">
+      <label>Product Name</label>
+      <input type="text" id="pSearch" placeholder="Search item..." autocomplete="off">
+      <div id="suggestions"></div>
+
+      <div style="display: flex; gap: 10px;">
+        <div style="flex: 1;">
+          <label>MRP (₹)</label>
+          <input type="number" id="pMRP" placeholder="0.00" inputmode="decimal">
+        </div>
+        <div style="flex: 1;">
+          <label>Qty</label>
+          <input type="number" id="pQty" value="1" step="0.01" inputmode="decimal">
+        </div>
+      </div>
+
+      <label>Select Unit (Add to invoice)</label>
+      <div class="unit-selector">
+        <button class="unit-btn" onclick="quickAdd('Kg', this)">KG</button>
+        <button class="unit-btn" onclick="quickAdd('grams', this)">GM</button>
+        <button class="unit-btn" onclick="quickAdd('pcs', this)">PCS</button>
+        <button class="unit-btn" onclick="quickAdd('ltr', this)">L</button>
+      </div>
+
+      <button class="add-btn" onclick="addItem()">ADD TO INVOICE (ENTER)</button>
+    </div>
+    
+    <button class="print-btn" onclick="printBill()">🖨️ PRINT RECEIPT</button>
+  </div>
+
+  <div class="bill-panel" id="printableBill">
+    <div style="text-align: center;">
+      <h3 style="margin: 0;">CHENNA MALLESHWARA PROVISION STORE</h3>
+      <p style="margin: 2px; font-size: 0.8rem;">#4-43, Madakasira - 515301</p>
+      <p style="margin: 2px; font-size: 0.75rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
+        Date: <span id="billDate"></span> | Bill: #<span id="billNo"></span>
+      </p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 45%;">Items</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th style="text-align: right;">Total</th>
+          <th class="no-print"></th>
+        </tr>
+      </thead>
+      <tbody id="billBody"></tbody>
+    </table>
+
+    <div class="summary-box">
+      <div class="summary-row"><span>Items:</span> <span id="totQty">0</span></div>
+      <div class="summary-row"><span>Total:</span> <span id="Total">₹0.00</span></div>
+      <div class="grand-total">Net: ₹<span id="netPayable">0.00</span></div>
+      
+      <div class="qr-container">
+        <div id="qrcode"></div>
+        <div class="qr-label">Scan to Pay via UPI</div>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 15px; font-size: 0.75rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
+      <p>THANK YOU. VISIT AGAIN!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const UPI_ID = "9133003838@ybl"; 
+  const STORE_NAME = "Chenna Malleshwara Store";
+  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF6tUzPPv0vZI-8ZxzlPMqpAzBZ4QIovDhFDkTrObeCnAQ5uThQTyKT9a8l2la_pWaxEMtuPio0aIR/pub?output=csv';
+  
+  let inventory = [];
+  let itemsInBill = [];
+  let selectedUnit = 'kg';
+  let qrcode = new QRCode(document.getElementById("qrcode"), { width: 100, height: 100 });
+
+  document.getElementById('billDate').innerText = new Date().toLocaleDateString();
+  document.getElementById('billNo').innerText = localStorage.getItem('lastBillNo') || 1001;
+
+  async function loadInventory() {
+    try {
+      const res = await fetch(CSV_URL + '&cb=' + Date.now());
+      const data = await res.text();
+      inventory = data.split(/\r?\n/).slice(1).map(row => {
+        const cols = row.split(',');
+        return { name: cols[0]?.trim(), price: parseFloat(cols[1]) || 0 };
+      }).filter(i => i.name);
+      document.getElementById('sync-status').innerText = "✅ " + inventory.length + " Items Online";
+    } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; }
+  }
+
+  document.getElementById('pSearch').addEventListener('input', (e) => {
+    let q = e.target.value.toLowerCase();
+    let s = document.getElementById('suggestions');
+    s.innerHTML = '';
+    if(!q) return;
+    inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,8).forEach(item => {
+      let d = document.createElement('div');
+      d.className = 'suggestion-item';
+      d.innerText = `${item.name} (₹${item.price})`;
+      d.onclick = () => {
+        document.getElementById('pSearch').value = item.name;
+        document.getElementById('pMRP').value = item.price;
+        s.innerHTML = '';
+        document.getElementById('pQty').focus();
+      };
+      s.appendChild(d);
+    });
+  });
+
+  function quickAdd(u, btn) {
+    selectedUnit = u;
+    addItem();
+  }
+
+  function addItem() {
+    const name = document.getElementById('pSearch').value;
+    const mrp = parseFloat(document.getElementById('pMRP').value);
+    const qty = parseFloat(document.getElementById('pQty').value);
+    if (!name || isNaN(mrp)) return;
+
+    const actualQty = (selectedUnit === 'grams' || selectedUnit === 'g') ? qty / 1000 : qty;
+    const lineTotal = mrp * actualQty;
+
+    itemsInBill.push({ name, qty, unit: selectedUnit, mrp, lineTotal });
+    updateBill();
+    
+    document.getElementById('pSearch').value = "";
+    document.getElementById('pMRP').value = "";
+    document.getElementById('pQty').value = "1";
+    document.getElementById('pSearch').focus();
+  }
+
+  function updateBill() {
+    const body = document.getElementById('billBody');
+    body.innerHTML = "";
+    let sub = 0;
+
+    itemsInBill.forEach((item, index) => {
+      sub += item.lineTotal;
+      body.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}${item.unit}</td><td>${item.mrp}</td><td style="text-align:right">${item.lineTotal.toFixed(2)}</td><td class="no-print"><button onclick="removeItem(${index})" style="cursor:pointer; background:none; border:none; color:var(--danger); padding: 5px;">✕</button></td></tr>`;
+    });
+
+    const net = Math.round(sub);
+    document.getElementById('totQty').innerText = itemsInBill.length;
+    document.getElementById('Total').innerText = "₹" + sub.toFixed(2);
+    document.getElementById('netPayable').innerText = net.toFixed(2);
+
+    if (net > 0) {
+      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(STORE_NAME)}&am=${net}&cu=INR`;
+      qrcode.clear();
+      qrcode.makeCode(upiUrl);
+    }
+  }
+
+  function removeItem(idx) { itemsInBill.splice(idx, 1); updateBill(); }
+
+  function printBill() {
+    if(itemsInBill.length === 0) return;
+    window.print();
+    let nextNo = parseInt(document.getElementById('billNo').innerText) + 1;
+    localStorage.setItem('lastBillNo', nextNo);
+    setTimeout(() => { location.reload(); }, 1000); 
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const target = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', target);
+    localStorage.setItem('theme', target);
+  }
+
+ 
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
+  window.onload = loadInventory;
+</script>
+</body>
+</html>
