@@ -96,7 +96,6 @@
 
 <div class="top-controls no-print">
   <button class="ctrl-btn" onclick="toggleTheme()">🌓 Theme</button>
-  <button class="ctrl-btn" onclick="toggleFullScreen()">⛶ Full</button>
 </div>
 
 <div class="app-container" id="appMain">
@@ -279,17 +278,6 @@
     localStorage.setItem('theme', target);
   }
 
-  function toggleFullScreen() {
-    const elem = document.documentElement;
-    if (!document.fullscreenElement) {
-      if (elem.requestFullscreen) elem.requestFullscreen();
-      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
-    } else {
-      if (document.exitFullscreen) document.exitFullscreen();
-    }
-  }
-
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 
@@ -297,3 +285,4 @@
 </script>
 </body>
 </html>
+
