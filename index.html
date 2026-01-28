@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>🛒 billing invoice</title>
+  <title>🛒 mobile invoice</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
@@ -27,19 +27,10 @@
     }
 
     @media (max-width: 900px) {
-      .app-container {
-        grid-template-columns: 1fr;
-        padding: 15px;
-        gap: 20px;
-      }
+      .app-container { grid-template-columns: 1fr; padding: 15px; gap: 20px; }
       body { padding: 5px; }
       .entry-panel { order: 1; }
       .bill-panel { order: 2; min-height: auto; }
-    }
-
-    .app-container:fullscreen {
-      max-width: 100vw; width: 100vw; height: 100vh; border-radius: 0;
-      overflow-y: auto; padding: 40px; box-sizing: border-box;
     }
 
     .input-group { background: var(--bg); padding: 18px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; position: relative; }
@@ -49,16 +40,15 @@
     input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box; margin-bottom: 12px; background: var(--card-bg); color: var(--text); }
     
     #suggestions { 
-      position: absolute; width: 90%; background: var(--card-bg); border: 1px solid var(--border); 
+      position: absolute; width: calc(100% - 36px); background: var(--card-bg); border: 1px solid var(--border); 
       max-height: 250px; overflow-y: auto; z-index: 1000; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-    .suggestion-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .suggestion-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; }
     .suggestion-item:hover { background: var(--primary); color: white; }
 
     .unit-selector { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
     .unit-btn { flex: 1; min-width: 60px; padding: 12px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; transition: 0.2s; }
     .unit-btn:hover { background: var(--primary); color: white; }
-    .unit-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
     .add-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
     .print-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
@@ -105,27 +95,21 @@
     <div id="sync-status" style="font-size: 12px; margin-bottom: 10px;">🔄 Syncing Inventory...</div>
 
     <div class="input-group">
-      <label>Product Name</label>
-      <input type="text" id="pSearch" placeholder="Search item..." autocomplete="off">
+      <label>Search Product</label>
+      <input type="text" id="pSearch" placeholder="Type name..." autocomplete="off">
       <div id="suggestions"></div>
 
-      <div style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
-          <label>MRP (₹)</label>
-          <input type="number" id="pMRP" placeholder="0.00" inputmode="decimal">
-        </div>
-        <div style="flex: 1;">
-          <label>Qty</label>
-          <input type="number" id="pQty" value="1" step="0.01" inputmode="decimal">
-        </div>
-      </div>
+      <label>Quantity</label>
+      <input type="number" id="pQty" value="1" step="0.01" inputmode="decimal">
 
-      <label>Select Unit (Add to invoice)</label>
+      <input type="hidden" id="pMRP">
+
+      <label>Select Unit & Add</label>
       <div class="unit-selector">
-        <button class="unit-btn" onclick="quickAdd('Kg', this)">KG</button>
-        <button class="unit-btn" onclick="quickAdd('grams', this)">GM</button>
-        <button class="unit-btn" onclick="quickAdd('pcs', this)">PCS</button>
-        <button class="unit-btn" onclick="quickAdd('ltr', this)">L</button>
+        <button class="unit-btn" onclick="quickAdd('Kg')">KG</button>
+        <button class="unit-btn" onclick="quickAdd('grams')">GM</button>
+        <button class="unit-btn" onclick="quickAdd('pcs')">PCS</button>
+        <button class="unit-btn" onclick="quickAdd('ltr')">L</button>
       </div>
 
       <button class="add-btn" onclick="addItem()">ADD TO INVOICE (ENTER)</button>
@@ -180,7 +164,7 @@
   
   let inventory = [];
   let itemsInBill = [];
-  let selectedUnit = 'kg';
+  let currentUnit = 'Kg';
   let qrcode = new QRCode(document.getElementById("qrcode"), { width: 100, height: 100 });
 
   document.getElementById('billDate').innerText = new Date().toLocaleDateString();
@@ -206,19 +190,18 @@
     inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,8).forEach(item => {
       let d = document.createElement('div');
       d.className = 'suggestion-item';
-      d.innerText = `${item.name} (₹${item.price})`;
+      d.innerHTML = `<span>${item.name}</span> <span style="color:var(--success)">₹${item.price}</span>`;
       d.onclick = () => {
         document.getElementById('pSearch').value = item.name;
         document.getElementById('pMRP').value = item.price;
         s.innerHTML = '';
-        // Removed the pQty.focus() from here to prevent jumping to quantity section
       };
       s.appendChild(d);
     });
   });
 
-  function quickAdd(u, btn) {
-    selectedUnit = u;
+  function quickAdd(u) {
+    currentUnit = u;
     addItem();
   }
 
@@ -226,17 +209,23 @@
     const name = document.getElementById('pSearch').value;
     const mrp = parseFloat(document.getElementById('pMRP').value);
     const qty = parseFloat(document.getElementById('pQty').value);
-    if (!name || isNaN(mrp)) return;
+    
+    if (!name || isNaN(mrp)) {
+        alert("Please select a product from suggestions first.");
+        return;
+    }
 
-    const actualQty = (selectedUnit === 'grams' || selectedUnit === 'g') ? qty / 1000 : qty;
+    const actualQty = (currentUnit === 'grams' || currentUnit === 'g') ? qty / 1000 : qty;
     const lineTotal = mrp * actualQty;
 
-    itemsInBill.push({ name, qty, unit: selectedUnit, mrp, lineTotal });
+    itemsInBill.push({ name, qty, unit: currentUnit, mrp, lineTotal });
     updateBill();
     
+    // Reset Form
     document.getElementById('pSearch').value = "";
     document.getElementById('pMRP').value = "";
     document.getElementById('pQty').value = "1";
+    currentUnit = 'Kg'; // Reset default
     document.getElementById('pSearch').focus();
   }
 
@@ -284,7 +273,6 @@
     if (!document.fullscreenElement) {
       if (elem.requestFullscreen) elem.requestFullscreen();
       else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
     } else {
       if (document.exitFullscreen) document.exitFullscreen();
     }
@@ -297,5 +285,7 @@
 </script>
 </body>
 </html>
+
+
 
 
