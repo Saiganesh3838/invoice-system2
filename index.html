@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🛒 Billing Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🛒 Mobile Billing</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
@@ -18,81 +18,77 @@
       --table-text: #e8eaed;
     }
 
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; transition: 0.3s; }
     
     .app-container { 
-      background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
-      max-width: 1400px; margin: auto; display: grid; grid-template-columns: 420px 1fr; gap: 25px; padding: 25px;
-      transition: all 0.3s ease;
+      background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+      max-width: 500px; margin: auto; display: flex; flex-direction: column; gap: 15px; padding: 15px;
     }
 
-    .app-container:fullscreen {
-      max-width: 100vw; width: 100vw; height: 100vh; border-radius: 0;
-      overflow-y: auto; padding: 40px; box-sizing: border-box;
-    }
+    .input-group { background: var(--bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border); position: relative; }
 
-    .input-group { background: var(--bg); padding: 18px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; position: relative; }
-
-    label { font-size: 0.75rem; font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary); text-transform: uppercase; }
+    label { font-size: 0.7rem; font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary); text-transform: uppercase; }
 
     input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box; margin-bottom: 12px; background: var(--card-bg); color: var(--text); }
     
     #suggestions { 
-      position: absolute; width: 90%; background: var(--card-bg); border: 1px solid var(--border); 
-      max-height: 250px; overflow-y: auto; z-index: 1000; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      position: absolute; width: calc(100% - 30px); background: var(--card-bg); border: 1px solid var(--border); 
+      max-height: 200px; overflow-y: auto; z-index: 1000; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
     .suggestion-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
-    .suggestion-item:hover { background: var(--primary); color: white; }
 
-    .unit-selector { display: flex; gap: 5px; margin-bottom: 15px; }
-    .unit-btn { flex: 1; padding: 12px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; transition: 0.2s; }
-    .unit-btn:hover { background: var(--primary); color: white; }
+    .unit-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
+    .unit-btn { padding: 12px 5px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
     .unit-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
     .add-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
     .print-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-    .bt-btn { background: #1a73e8; color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
     
-    .top-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: flex-end; }
-    .ctrl-btn { padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; font-weight: 500; }
+    .top-controls { display: flex; gap: 10px; margin-bottom: 10px; justify-content: space-between; align-items: center; }
+    .ctrl-btn { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; font-size: 0.8rem; }
 
-    .bill-panel { padding: 20px; background: var(--card-bg); color: var(--table-text); border-radius: 8px; min-height: 600px; border: 1px solid var(--border); }
+    .bill-panel { padding: 15px; background: var(--card-bg); color: var(--table-text); border-radius: 8px; border: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { text-align: left; border-bottom: 2px solid var(--table-text); padding: 8px; font-size: 0.85rem; }
-    td { padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { text-align: left; border-bottom: 2px solid var(--table-text); padding: 8px 4px; font-size: 0.75rem; }
+    td { padding: 8px 4px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
 
-    .summary-box { margin-top: 20px; border-top: 2px solid var(--table-text); padding-top: 10px; }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-    .grand-total { font-size: 2rem; font-weight: bold; text-align: right; margin-top: 10px; border-top: 1px solid var(--table-text); padding-top: 5px; }
+    .summary-box { margin-top: 15px; border-top: 2px solid var(--table-text); padding-top: 10px; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; }
+    .grand-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin-top: 10px; border-top: 1px solid var(--table-text); padding-top: 5px; color: var(--primary); }
     
-    .qr-container { text-align: center; margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
-    #qrcode img { border: 5px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    .qr-label { font-size: 10px; font-weight: bold; margin-top: 5px; text-transform: uppercase; color: var(--table-text); }
+    .qr-container { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      text-align: center; 
+      margin-top: 15px; 
+      width: 100%;
+    }
+    #qrcode { display: flex; justify-content: center; }
+    #qrcode img { border: 4px solid white; }
+
+    .footer-msg { text-align: center; margin-top: 20px; font-weight: bold; font-size: 0.9rem; border-top: 1px dashed var(--table-text); padding-top: 10px; }
 
     @media print {
       .no-print { display: none !important; }
-      body { padding: 0; background: white; color: black; }
-      .app-container { display: block !important; box-shadow: none; border: none; width: 100%; }
-      .bill-panel { border: none; width: 80mm; margin: auto; padding: 0; background: white; color: black; }
-      th, td { font-family: monospace; font-size: 12px; color: black; border-color: black; }
-      .grand-total { font-size: 1.4rem; color: black; border-top: 1px solid black; }
-      .summary-box { border-top: 1px solid black; }
-      .qr-label { color: black; }
-      @page { size: 80mm auto; margin: 5mm; }
+      body { padding: 0; background: white; }
+      .app-container { box-shadow: none; border: none; width: 100%; padding: 0; }
+      .bill-panel { border: none; width: 100%; }
+      @page { size: auto; margin: 5mm; }
     }
   </style>
 </head>
 <body>
 
 <div class="top-controls no-print">
-  <button class="ctrl-btn" onclick="toggleTheme()">🌓 Toggle Theme</button>
-  <button class="ctrl-btn" onclick="toggleFullScreen()">⛶ Full Screen</button>
+  <h3 style="margin:0; color:var(--primary)">🛒 Mobile Billing</h3>
+  <button class="ctrl-btn" onclick="toggleTheme()">🌓 Theme</button>
 </div>
 
-<div class="app-container" id="appMain">
+<div class="app-container">
   <div class="entry-panel no-print">
-    <h2 style="color: var(--primary); margin-top: 0;">🛒 Billing Dashboard</h2>
-    <div id="sync-status" style="font-size: 12px; margin-bottom: 10px;">🔄 Syncing Inventory...</div>
+    <div id="sync-status" style="font-size: 11px; margin-bottom: 8px; opacity: 0.7;">🔄 Syncing Inventory...</div>
 
     <div class="input-group">
       <label>Product Name</label>
@@ -100,17 +96,17 @@
       <div id="suggestions"></div>
 
       <div style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
+        <div style="flex: 1.5;">
           <label>MRP (₹)</label>
           <input type="number" id="pMRP" placeholder="0.00">
         </div>
         <div style="flex: 1;">
           <label>Qty</label>
-          <input type="number" id="pQty" value="1" step="0.01">
+          <input type="number" id="pQty" value="" step="0.01">
         </div>
       </div>
 
-      <label>Select Unit (Adds to Bill)</label>
+      <label>Unit</label>
       <div class="unit-selector">
         <button class="unit-btn" onclick="quickAdd('Kg')">KG</button>
         <button class="unit-btn" onclick="quickAdd('grams')">GM</button>
@@ -118,28 +114,26 @@
         <button class="unit-btn" onclick="quickAdd('ltr')">L</button>
       </div>
 
-      <button class="add-btn" onclick="addItem()">ADD TO INVOICE (ENTER)</button>
+      <button class="add-btn" onclick="addItem()">+ ADD ITEM</button>
     </div>
     
-    <button class="bt-btn" onclick="printBluetooth()">🔵 BLUETOOTH PRINT (TVS)</button>
-    <button class="print-btn" onclick="printBill()">🖨️ SYSTEM PRINT</button>
+    <button class="print-btn" onclick="printBill()">🖨️ PRINT RECEIPT</button>
   </div>
 
   <div class="bill-panel" id="printableBill">
     <div style="text-align: center;">
-      <h3 style="margin: 0;">CHENNA MALLESHWARA PROVISION STORE</h3>
-      <p style="margin: 2px; font-size: 0.8rem;">#4-43, Madakasira - 515301</p>
-      <p style="margin: 2px; font-size: 0.75rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
-        Date: <span id="billDate"></span> | Bill: #<span id="billNo"></span>
+      <h4 style="margin: 0;">CHENNA MALLESHWARA STORE</h4>
+      <p style="margin: 2px; font-size: 0.7rem;">#4-43, Madakasira - 515301</p>
+      <p style="margin: 2px; font-size: 0.7rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
+        <span id="billDate"></span> | #<span id="billNo"></span>
       </p>
     </div>
 
     <table>
       <thead>
         <tr>
-          <th style="width: 50%;">Items</th>
+          <th style="width: 45%;">Item</th>
           <th>Qty</th>
-          <th>Price</th>
           <th style="text-align: right;">Total</th>
           <th class="no-print"></th>
         </tr>
@@ -149,17 +143,17 @@
 
     <div class="summary-box">
       <div class="summary-row"><span>Items:</span> <span id="totQty">0</span></div>
-      <div class="summary-row"><span>Total:</span> <span id="Total">₹0.00</span></div>
+      <div class="summary-row"><span>Total:</span> <span id="totalAmount">₹0.00</span></div>
       <div class="grand-total">Net Payable: ₹<span id="netPayable">0.00</span></div>
       
       <div class="qr-container">
         <div id="qrcode"></div>
-        <div class="qr-label">Scan to Pay via UPI</div>
+        <div style="font-size: 9px; margin-top: 5px; font-weight: bold;">SCAN TO PAY VIA UPI</div>
       </div>
     </div>
 
-    <div style="text-align: center; margin-top: 15px; font-size: 0.75rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
-      <p>🙏 THANK YOU. VISIT AGAIN 😊</p>
+    <div class="footer-msg">
+      🙏 THANK YOU. VISIT AGAIN! 😊
     </div>
   </div>
 </div>
@@ -173,7 +167,6 @@
   let itemsInBill = [];
   let selectedUnit = 'Kg';
   let qrcode = new QRCode(document.getElementById("qrcode"), { width: 100, height: 100 });
-  let btCharacteristic = null;
 
   document.getElementById('billDate').innerText = new Date().toLocaleDateString();
   document.getElementById('billNo').innerText = localStorage.getItem('lastBillNo') || 1001;
@@ -187,7 +180,7 @@
         return { name: cols[0]?.trim(), price: parseFloat(cols[1]) || 0 };
       }).filter(i => i.name);
       document.getElementById('sync-status').innerText = "✅ " + inventory.length + " Items Online";
-    } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; }
+    } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline Mode"; }
   }
 
   document.getElementById('pSearch').addEventListener('input', (e) => {
@@ -195,107 +188,88 @@
     let s = document.getElementById('suggestions');
     s.innerHTML = '';
     if(!q) return;
-    inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,8).forEach(item => {
+    inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,5).forEach(item => {
       let d = document.createElement('div');
       d.className = 'suggestion-item';
       d.innerText = item.name; 
       d.onclick = () => {
         document.getElementById('pSearch').value = item.name;
-        document.getElementById('pMRP').value = item.price;
         s.innerHTML = '';
-        document.getElementById('pQty').focus();
+        document.getElementById('pMRP').focus();
       };
       s.appendChild(d);
     });
   });
 
-  document.getElementById('pSearch').addEventListener('keydown', (e) => { if(e.key === 'Enter') document.getElementById('pMRP').focus(); });
-  document.getElementById('pMRP').addEventListener('keydown', (e) => { if(e.key === 'Enter') document.getElementById('pQty').focus(); });
-  document.getElementById('pQty').addEventListener('keydown', (e) => { if(e.key === 'Enter') addItem(); });
-
-  function quickAdd(u) { selectedUnit = u; addItem(); }
+  function quickAdd(u) {
+    selectedUnit = u;
+    addItem();
+  }
 
   function addItem() {
     const name = document.getElementById('pSearch').value;
     const mrp = parseFloat(document.getElementById('pMRP').value);
     const qty = parseFloat(document.getElementById('pQty').value);
-    if (!name || isNaN(mrp)) return alert("Please enter Name and MRP price");
+    if (!name || isNaN(mrp)) return;
+
     const actualQty = selectedUnit === 'grams' ? qty / 1000 : qty;
     const lineTotal = mrp * actualQty;
+
     itemsInBill.push({ name, qty, unit: selectedUnit, mrp, lineTotal });
     updateBill();
-    document.getElementById('pSearch').value = ""; document.getElementById('pMRP').value = ""; document.getElementById('pQty').value = "1";
-    selectedUnit = 'Kg'; document.getElementById('pSearch').focus();
+    
+    document.getElementById('pSearch').value = "";
+    document.getElementById('pMRP').value = "";
+    document.getElementById('pQty').value = "1";
+    document.getElementById('pSearch').focus();
   }
 
   function updateBill() {
     const body = document.getElementById('billBody');
     body.innerHTML = "";
     let sub = 0;
+
     itemsInBill.forEach((item, index) => {
       sub += item.lineTotal;
-      body.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}${item.unit}</td><td>${item.mrp}</td><td style="text-align:right">${item.lineTotal.toFixed(2)}</td><td class="no-print"><button onclick="removeItem(${index})" style="cursor:pointer; background:none; border:none; color:var(--danger)">✕</button></td></tr>`;
+      body.innerHTML += `<tr>
+        <td>${item.name}</td>
+        <td>${item.qty}${item.unit}</td>
+        <td style="text-align:right">${item.lineTotal.toFixed(2)}</td>
+        <td class="no-print"><button onclick="removeItem(${index})" style="color:var(--danger); border:none; background:none; font-size:1.2rem">×</button></td>
+      </tr>`;
     });
+
     const net = Math.round(sub);
     document.getElementById('totQty').innerText = itemsInBill.length;
-    document.getElementById('Total').innerText = "₹" + sub.toFixed(2);
+    document.getElementById('totalAmount').innerText = "₹" + sub.toFixed(2);
     document.getElementById('netPayable').innerText = net.toFixed(2);
+
     if (net > 0) {
+      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(STORE_NAME)}&am=${net}&cu=INR`;
       qrcode.clear();
-      qrcode.makeCode(`upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(STORE_NAME)}&am=${net}&cu=INR`);
+      qrcode.makeCode(upiUrl);
     }
   }
 
   function removeItem(idx) { itemsInBill.splice(idx, 1); updateBill(); }
 
-  // --- UNIVERSAL BLUETOOTH PRINTING ---
-  async function printBluetooth() {
-    if (itemsInBill.length === 0) return alert("Add items first");
-    try {
-      if (!btCharacteristic) {
-        const device = await navigator.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: ['0000ff00-0000-1000-8000-00805f9b34fb', '00001101-0000-1000-8000-00805f9b34fb']
-        });
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('0000ff00-0000-1000-8000-00805f9b34fb');
-        btCharacteristic = await service.getCharacteristic('0000ff01-0000-1000-8000-00805f9b34fb');
-      }
-
-      let printData = `\x1B\x40\x1B\x61\x01${STORE_NAME}\nMadakasira - 515301\n--------------------------------\n`;
-      itemsInBill.forEach(i => {
-        let n = i.name.substring(0, 15).padEnd(16);
-        let q = `${i.qty}${i.unit[0]}`.padEnd(6);
-        let t = i.lineTotal.toFixed(0).padStart(6);
-        printData += `${n}${q}${t}\n`;
-      });
-      printData += `--------------------------------\nTOTAL: RS ${document.getElementById('netPayable').innerText}\n\nTHANK YOU - VISIT AGAIN\n\n\n\n\n`;
-
-      const encoder = new TextEncoder();
-      await btCharacteristic.writeValue(encoder.encode(printData));
-      saveBill();
-    } catch (e) { alert("BT Error: Use Bluefy (iOS) or Chrome (Android). Pair printer in Settings first."); }
-  }
-
-  function printBill() { if(itemsInBill.length === 0) return; window.print(); saveBill(); }
-
-  function saveBill() {
+  function printBill() {
+    if(itemsInBill.length === 0) return;
+    window.print();
     let nextNo = parseInt(document.getElementById('billNo').innerText) + 1;
     localStorage.setItem('lastBillNo', nextNo);
-    setTimeout(() => location.reload(), 2000); 
+    location.reload(); 
   }
 
   function toggleTheme() {
-    const target = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    const current = document.documentElement.getAttribute('data-theme');
+    const target = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', target);
     localStorage.setItem('theme', target);
   }
 
-  function toggleFullScreen() {
-    const elem = document.getElementById("appMain");
-    if (!document.fullscreenElement) { if (elem.requestFullscreen) elem.requestFullscreen(); } 
-    else { if (document.exitFullscreen) document.exitFullscreen(); }
-  }
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
 
   window.onload = loadInventory;
 </script>
