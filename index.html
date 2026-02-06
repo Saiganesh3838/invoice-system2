@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>🛒 Mobile Billing </title>
+  <title>🛒 Mobile Billing</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
@@ -18,108 +18,62 @@
       --table-text: #e8eaed;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    body { 
-      font-family: 'Segoe UI', system-ui, sans-serif; 
-      background: var(--bg); 
-      color: var(--text); 
-      margin: 0; 
-      padding: 10px; 
-      transition: background 0.2s; 
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; transition: 0.3s; }
     
     .app-container { 
-      background: var(--card-bg); 
-      border-radius: 12px; 
-      border: 1px solid var(--border); 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-      max-width: 500px; 
-      margin: 0 auto; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 12px; 
-      padding: 15px;
+      background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+      max-width: 500px; margin: auto; display: flex; flex-direction: column; gap: 15px; padding: 15px;
     }
 
-    .input-group { 
-      background: var(--bg); 
-      padding: 12px; 
-      border-radius: 8px; 
-      border: 1px solid var(--border); 
-      position: relative; 
-    }
-
-    label { font-size: 0.65rem; font-weight: bold; display: block; margin-bottom: 4px; color: var(--primary); text-transform: uppercase; }
-
-    input { 
-      width: 100%; 
-      padding: 10px; 
-      border: 1px solid var(--border); 
-      border-radius: 6px; 
-      font-size: 1rem; 
-      margin-bottom: 10px; 
-      background: var(--card-bg); 
-      color: var(--text); 
-    }
+    .input-group { background: var(--bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border); position: relative; }
+    label { font-size: 0.7rem; font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary); text-transform: uppercase; }
+    input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box; margin-bottom: 12px; background: var(--card-bg); color: var(--text); }
     
     #suggestions { 
-      position: absolute; 
-      left: 12px; 
-      right: 12px; 
-      background: var(--card-bg); 
-      border: 1px solid var(--border); 
-      max-height: 200px; 
-      overflow-y: auto; 
-      z-index: 1000; 
-      border-radius: 0 0 6px 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      position: absolute; width: calc(100% - 30px); background: var(--card-bg); border: 1px solid var(--border); 
+      max-height: 200px; overflow-y: auto; z-index: 1000; border-radius: 6px;
     }
     .suggestion-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
 
-    .unit-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 12px; }
-    .unit-btn { padding: 10px 2px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+    .unit-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 15px; }
+    .unit-btn { padding: 12px 5px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
     .unit-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    .add-btn { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-    .print-btn { background: var(--success); color: white; width: 100%; padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 8px; }
+    .add-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .print-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
     
-    .top-controls { display: flex; gap: 10px; margin-bottom: 10px; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto 10px auto; }
-    .ctrl-btn { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; font-size: 0.75rem; }
+    .bill-panel { padding: 10px; background: #fff; color: #000; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; border-bottom: 1px dashed #000; padding: 5px 0; font-size: 0.7rem; }
+    td { padding: 5px 0; border-bottom: 1px solid #eee; font-size: 0.8rem; }
 
-    .bill-panel { padding: 10px; background: var(--card-bg); color: var(--table-text); border-radius: 8px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    th { text-align: left; border-bottom: 1.5px solid var(--table-text); padding: 6px 2px; font-size: 0.7rem; }
-    td { padding: 8px 2px; border-bottom: 1px solid #eee; font-size: 0.8rem; }
-
-    .summary-box { margin-top: 12px; border-top: 1.5px solid var(--table-text); padding-top: 8px; }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.85rem; }
-    .grand-total { font-size: 1.4rem; font-weight: bold; text-align: right; margin-top: 8px; border-top: 1px solid var(--table-text); padding-top: 4px; color: var(--primary); }
+    .grand-total { font-size: 1.3rem; font-weight: bold; text-align: right; margin-top: 10px; border-top: 1px dashed #000; padding-top: 5px; }
     
-    .qr-container { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
-    #qrcode { padding: 5px; background: white; border-radius: 4px; }
+    .qr-container { display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
+    #qrcode img { border: 2px solid white; width: 80px !important; height: 80px !important; }
 
-    .footer-msg { text-align: center; margin-top: 15px; font-weight: bold; font-size: 0.8rem; border-top: 1px dashed #ccc; padding-top: 8px; }
-
+    /* THERMAL PRINTER OVERRIDES */
     @media print {
       .no-print { display: none !important; }
-      body { padding: 0; background: white; }
-      .app-container { box-shadow: none; border: none; width: 100%; padding: 0; margin: 0; }
-      .bill-panel { border: none; width: 100%; }
-      @page { size: auto; margin: 3mm; }
+      body { padding: 0; background: white; margin: 0; width: 58mm; }
+      .app-container { box-shadow: none; border: none; width: 100%; padding: 0; }
+      .bill-panel { border: none; width: 100%; font-family: 'Courier New', monospace; }
+      th, td { color: black !important; border-bottom: 1px dashed #ccc; }
+      .grand-total { color: black !important; }
+      @page { margin: 0; size: auto; }
     }
   </style>
 </head>
 <body>
 
-<div class="top-controls no-print">
-  <h3 style="margin:0; color:var(--primary)">🛒 Billing dashboard</h3>
-  <button class="ctrl-btn" onclick="toggleTheme()">🌓 Theme</button>
+<div class="top-controls no-print" style="display:flex; justify-content: space-between; padding: 10px; max-width: 500px; margin: auto;">
+  <h3 style="margin:0; color:var(--primary)">🛒Billing dashboard</h3>
+  <button class="unit-btn" onclick="toggleTheme()">🌓 Mode</button>
 </div>
 
 <div class="app-container">
   <div class="entry-panel no-print">
-    <div id="sync-status" style="font-size: 11px; margin-bottom: 8px; opacity: 0.7;">🔄 Syncing Inventory...</div>
+    <div id="sync-status" style="font-size: 11px; margin-bottom: 8px; opacity: 0.7;">🔄 Syncing...</div>
 
     <div class="input-group">
       <label>Product Name</label>
@@ -127,25 +81,19 @@
       <div id="suggestions"></div>
 
       <div style="display: flex; gap: 10px;">
-        <div style="flex: 1.5;">
-          <label>MRP (₹)</label>
-          <input type="number" id="pMRP" placeholder="0.00">
-        </div>
-        <div style="flex: 1;">
-          <label>Qty</label>
-          <input type="number" id="pQty" value="" step="0.01">
-        </div>
+        <div style="flex: 1.5;"><label>MRP (₹)</label><input type="number" id="pMRP"></div>
+        <div style="flex: 1;"><label>Qty</label><input type="number" id="pQty" value="1" step="0.01"></div>
       </div>
 
       <label>Unit</label>
       <div class="unit-selector">
-        <button class="unit-btn active" onclick="quickAdd('Kg')">KG</button>
-        <button class="unit-btn" onclick="quickAdd('grams')">GM</button>
-        <button class="unit-btn" onclick="quickAdd('pcs')">PCS</button>
-        <button class="unit-btn" onclick="quickAdd('ltr')">L</button>
+        <button class="unit-btn active" id="btnKg" onclick="setUnit('Kg')">KG</button>
+        <button class="unit-btn" id="btnGm" onclick="setUnit('grams')">GM</button>
+        <button class="unit-btn" id="btnPcs" onclick="setUnit('pcs')">PCS</button>
+        <button class="unit-btn" id="btnLtr" onclick="setUnit('ltr')">LTR</button>
       </div>
 
-      <button class="add-btn" onclick="addItem()">+ ADD ITEM</button>
+      <button class="add-btn" onclick="addItem()">+ ADD TO BILL</button>
     </div>
     
     <button class="print-btn" onclick="printBill()">🖨️ PRINT RECEIPT</button>
@@ -153,19 +101,18 @@
 
   <div class="bill-panel" id="printableBill">
     <div style="text-align: center;">
-      <h4 style="margin: 0;">CHENNA MALLESHWARA PROVISION STORE</h4>
-      <p style="margin: 2px; font-size: 0.7rem;">#4-43,Gandhi Bazaar, Madakasira - 515301,Contact:9441018885</p>
-      <p style="margin: 2px; font-size: 0.7rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
-        <span id="billDate"></span> | #<span id="billNo"></span>
+      <h3 style="margin: 0; font-size: 1rem;">CHENNA MALLESHWARA STORE</h3>
+      <p style="margin: 2px; font-size: 0.6rem;">#4-43, Madakasira - 515301</p>
+      <p style="margin: 2px; font-size: 0.6rem; border-bottom: 1px dashed #000; padding-bottom: 5px;">
+        Date: <span id="billDate"></span> | Bill: #<span id="billNo"></span>
       </p>
     </div>
 
     <table>
       <thead>
         <tr>
-          <th>Items</th>
-          <th>Qty</th>
-          <th>Price</th>
+          <th style="width: 50%;">Item</th>
+          <th style="text-align: center;">Qty</th>
           <th style="text-align: right;">Total</th>
           <th class="no-print"></th>
         </tr>
@@ -173,32 +120,34 @@
       <tbody id="billBody"></tbody>
     </table>
 
-    <div class="summary-box">
-      <div class="summary-row"><span>Items:</span> <span id="totQty">0</span></div>
-      <div class="summary-row"><span>Total:</span> <span id="Total">₹0.00</span></div>
-      <div class="grand-total">Net Payable: ₹<span id="netPayable">0.00</span></div>
+    <div style="margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+        <span>Items: <b id="totQty">0</b></span>
+        <span>Total: <b id="totalAmount">0.00</b></span>
+      </div>
+      <div class="grand-total">NET: ₹<span id="netPayable">0.00</span></div>
       
       <div class="qr-container">
         <div id="qrcode"></div>
-        <div class="qr-label">Scan to Pay via UPI</div>
+        <div style="font-size: 8px; margin-top: 4px; font-weight: bold;">SCAN TO PAY VIA UPI</div>
       </div>
     </div>
 
-    <div style="text-align: center; margin-top: 15px; font-size: 0.75rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
-      <p>🙏 THANK YOU. VISIT AGAIN 😊</p>
+    <div style="text-align: center; margin-top: 10px; font-size: 0.7rem; border-top: 1px dashed #000; padding-top: 5px;">
+      🙏 THANK YOU. VISIT AGAIN! 😊
     </div>
   </div>
 </div>
 
 <script>
-  const UPI_ID = "9441018885@ybl"; 
+  const UPI_ID = "9133003838@ybl"; 
   const STORE_NAME = "Chenna Malleshwara Store";
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF6tUzPPv0vZI-8ZxzlPMqpAzBZ4QIovDhFDkTrObeCnAQ5uThQTyKT9a8l2la_pWaxEMtuPio0aIR/pub?output=csv';
   
   let inventory = [];
   let itemsInBill = [];
   let selectedUnit = 'Kg';
-  let qrcode = new QRCode(document.getElementById("qrcode"), { width: 100, height: 100 });
+  let qrcode = new QRCode(document.getElementById("qrcode"), { width: 80, height: 80 });
 
   document.getElementById('billDate').innerText = new Date().toLocaleDateString();
   document.getElementById('billNo').innerText = localStorage.getItem('lastBillNo') || 1001;
@@ -211,8 +160,8 @@
         const cols = row.split(',');
         return { name: cols[0]?.trim(), price: parseFloat(cols[1]) || 0 };
       }).filter(i => i.name);
-      document.getElementById('sync-status').innerText = "✅ " + inventory.length + " Items Online";
-    } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; }
+      document.getElementById('sync-status').innerText = "✅ Online: " + inventory.length + " Items";
+    } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline Mode"; }
   }
 
   document.getElementById('pSearch').addEventListener('input', (e) => {
@@ -220,65 +169,44 @@
     let s = document.getElementById('suggestions');
     s.innerHTML = '';
     if(!q) return;
-    inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,8).forEach(item => {
+    inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,5).forEach(item => {
       let d = document.createElement('div');
       d.className = 'suggestion-item';
-      d.innerText = item.name; 
+      d.innerText = item.name + " (₹" + item.price + ")"; 
       d.onclick = () => {
         document.getElementById('pSearch').value = item.name;
+        document.getElementById('pMRP').value = item.price;
         s.innerHTML = '';
-        document.getElementById('pMRP').focus(); 
+        document.getElementById('pQty').focus();
       };
       s.appendChild(d);
     });
   });
 
-  document.getElementById('pSearch').addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('pMRP').focus();
-    }
-  });
-
-  document.getElementById('pMRP').addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('pQty').focus();
-    }
-  });
-
-  document.getElementById('pQty').addEventListener('keydown', (e) => {
-    if(e.key === 'Enter') {
-        e.preventDefault();
-        addItem(); 
-    }
-  });
-
-  function quickAdd(u) {
+  function setUnit(u) {
     selectedUnit = u;
-    addItem(); 
+    document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn' + u.charAt(0).toUpperCase() + u.slice(1,2)).classList.add('active');
+    // Simple logic: if user clicks "GM" it should probably be KG unit but calculated as grams
   }
 
   function addItem() {
     const name = document.getElementById('pSearch').value;
     const mrp = parseFloat(document.getElementById('pMRP').value);
     const qty = parseFloat(document.getElementById('pQty').value);
-    
-    if (!name || isNaN(mrp)) {
-        alert("Please enter Name and MRP price");
-        return;
-    }
+    if (!name || isNaN(mrp)) return;
 
-    const actualQty = selectedUnit === 'grams' ? qty / 1000 : qty;
-    const lineTotal = mrp * actualQty;
+    let calcQty = qty;
+    let unitLabel = selectedUnit;
+    if(selectedUnit === 'grams') { calcQty = qty / 1000; unitLabel = 'gm'; }
 
-    itemsInBill.push({ name, qty, unit: selectedUnit, mrp, lineTotal });
+    const lineTotal = mrp * calcQty;
+    itemsInBill.push({ name, qty, unit: unitLabel, mrp, lineTotal });
     updateBill();
     
     document.getElementById('pSearch').value = "";
     document.getElementById('pMRP').value = "";
     document.getElementById('pQty').value = "1";
-    selectedUnit = 'Kg'; 
     document.getElementById('pSearch').focus();
   }
 
@@ -289,12 +217,17 @@
 
     itemsInBill.forEach((item, index) => {
       sub += item.lineTotal;
-      body.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}${item.unit}</td><td>${item.mrp}</td><td style="text-align:right">${item.lineTotal.toFixed(2)}</td><td class="no-print"><button onclick="removeItem(${index})" style="cursor:pointer; background:none; border:none; color:var(--danger)">✕</button></td></tr>`;
+      body.innerHTML += `<tr>
+        <td>${item.name}</td>
+        <td style="text-align:center">${item.qty}${item.unit}</td>
+        <td style="text-align:right">${item.lineTotal.toFixed(2)}</td>
+        <td class="no-print"><button onclick="removeItem(${index})" style="color:var(--danger); border:none; background:none; font-size:1rem">×</button></td>
+      </tr>`;
     });
 
     const net = Math.round(sub);
     document.getElementById('totQty').innerText = itemsInBill.length;
-    document.getElementById('Total').innerText = "₹" + sub.toFixed(2);
+    document.getElementById('totalAmount').innerText = "₹" + sub.toFixed(2);
     document.getElementById('netPayable').innerText = net.toFixed(2);
 
     if (net > 0) {
@@ -309,21 +242,23 @@
   function printBill() {
     if(itemsInBill.length === 0) return;
     window.print();
+    
+    // Increment Bill Number
     let nextNo = parseInt(document.getElementById('billNo').innerText) + 1;
     localStorage.setItem('lastBillNo', nextNo);
-    location.reload(); 
+    
+    // Clear bill for next customer
+    setTimeout(() => {
+        itemsInBill = [];
+        updateBill();
+        document.getElementById('billNo').innerText = nextNo;
+    }, 1000);
   }
 
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme');
-    const target = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', target);
-    localStorage.setItem('theme', target);
+    document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
   }
-
-
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
 
   window.onload = loadInventory;
 </script>
