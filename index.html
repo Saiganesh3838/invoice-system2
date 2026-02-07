@@ -3,132 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>🛒 mobile invoice</title>
+  <title>🛒 Mobile Billing</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
     :root { 
-      --primary: #1a73e8; --success: #34a853; --danger: #d93025; 
+      --primary: #086ef3; --success: #34a853; --danger: #d93025; 
       --bg: #f8f9fa; --card-bg: #ffffff; --text: #202124; --border: #dadce0;
       --table-text: #000000;
     }
     
-    [data-theme="dark"] {
+     [data-theme="dark"] {
       --bg: #121212; --card-bg: #1e1e1e; --text: #e8eaed; --border: #3c4043;
       --table-text: #e8eaed;
     }
-
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; transition: 0.3s; }
+     *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; transition:0.3s; }
     
     .app-container { 
-      background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
-      max-width: 1400px; margin: auto; display: grid; grid-template-columns: 420px 1fr; gap: 25px; padding: 25px;
-      transition: all 0.3s ease;
+      background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 8px rgba(19, 17, 17, 0.1); 
+      max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; padding: 15px;
     }
 
-    /* Mobile Responsive Adjustments */
-    @media (max-width: 900px) {
-      .app-container {
-        grid-template-columns: 1fr; /* Stack panels vertically */
-        padding: 15px;
-        gap: 20px;
-      }
-      body { padding: 5px; }
-      .entry-panel { order: 1; } /* Input always on top */
-      .bill-panel { order: 2; min-height: auto; }
-    }
+    .input-group { background: var(--bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border); position: relative; }
 
-    .app-container:fullscreen {
-      max-width: 100vw; width: 100vw; height: 100vh; border-radius: 0;
-      overflow-y: auto; padding: 40px; box-sizing: border-box;
-    }
-
-    .input-group { background: var(--bg); padding: 18px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; position: relative; }
-
-    label { font-size: 0.75rem; font-weight: bold; display: block; margin-bottom: 5px; color: var(--primary); text-transform: uppercase; }
-
-    input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; box-sizing: border-box; margin-bottom: 12px; background: var(--card-bg); color: var(--text); }
+    label { font-size: 0.65rem; font-weight: bold; display: block; margin-bottom: 4px; color: var(--primary); text-transform: uppercase; }
+    input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; margin-bottom: 12px; background: var(--card-bg); color: var(--text); }
     
-    #suggestions { 
-      position: absolute; width: 90%; background: var(--card-bg); border: 1px solid var(--border); 
-      max-height: 250px; overflow-y: auto; z-index: 1000; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+ #suggestions { 
+      position: absolute; 
+      left: 12px; 
+      right: 12px; 
+      background: var(--card-bg); 
+      border: 1px solid var(--border); 
+      max-height: 200px; 
+      overflow-y: auto; 
+      z-index: 1000; 
+      border-radius: 0 0 6px 6px;
+      box-shadow: 0 4px 12px rgba(10, 1, 1, 0);
     }
     .suggestion-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
-    .suggestion-item:hover { background: var(--primary); color: white; }
+    .unit-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 12px; }
 
-    .unit-selector { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
-    .unit-btn { flex: 1; min-width: 60px; padding: 12px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; transition: 0.2s; }
-    .unit-btn:hover { background: var(--primary); color: white; }
+    .unit-btn { padding: 10px 2px; border: 1px solid var(--border); cursor: pointer; background: var(--card-bg); color: var(--text); border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
     .unit-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    .add-btn { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-    .print-btn { background: var(--success); color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    .add-btn { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    .print-btn { background: var(--success); color: white; width: 100%; padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    .bt-btn { background: #0664f1; color: white; width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-top: 8px; }
     
-    .top-controls { display: flex; gap: 10px; margin-bottom: 15px; justify-content: flex-end; }
-    .ctrl-btn { padding: 8px 15px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; font-weight: 500; }
+    .top-controls { display: flex; gap: 10px; margin-bottom: 10px; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto 10px auto; }
+    .ctrl-btn { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; font-size: 0.75rem; }
 
-    .bill-panel { padding: 20px; background: var(--card-bg); color: var(--table-text); border-radius: 8px; min-height: 600px; border: 1px solid var(--border); overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { text-align: left; border-bottom: 2px solid var(--table-text); padding: 8px; font-size: 0.85rem; }
-    td { padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    /* Thermal Receipt Styling */
+    .bill-panel { padding: 10px; background: #fff; color: #010000; border-radius: 0; border: 1px solid #070606; width: 58mm; margin: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th { text-align: left; border-bottom: 1.5px dashed #000000; padding: 6px 2px; font-size: 0.7rem; }
+    td { padding: 8px 2px; border-bottom: 1px solid #eee; font-size: 0.8rem; }
+    .summary-box { margin-top: 12px; border-top: 1.5px solid var(--table-text); padding-top: 10px; }
 
-    .summary-box { margin-top: 20px; border-top: 2px solid var(--table-text); padding-top: 10px; }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-    .grand-total { font-size: 1.8rem; font-weight: bold; text-align: right; margin-top: 10px; border-top: 1px solid var(--table-text); padding-top: 5px; }
-    
-    .qr-container { text-align: center; margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
-    #qrcode img { border: 5px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    .qr-label { font-size: 10px; font-weight: bold; margin-top: 5px; text-transform: uppercase; color: var(--table-text); }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.75rem; }
 
+    .grand-total { font-size: 0.80rem; font-weight: bold; text-align: right; margin-top: 8px; border-top: 1px solid var(--table-text); padding-top: 4px; color: var(--primary); }
+    .qr-container { display: flex; flex-direction: column; align-items: center; margin-top: 12px; }
+    #qrcode { padding: 5px; background: white; border-radius: 4px; }
+
+    .footer-msg { text-align: center; margin-top: 15px; font-weight: bold; font-size: 0.8rem; border-top: 1px dashed #ccc; padding-top: 8px; }
     @media print {
       .no-print { display: none !important; }
-      body { padding: 0; background: white; color: black; }
-      .app-container { display: block !important; box-shadow: none; border: none; width: 100%; }
-      .bill-panel { border: none; width: 80mm; margin: auto; padding: 0; background: white; color: black; }
-      th, td { font-family: monospace; font-size: 12px; color: black; border-color: black; }
-      .grand-total { font-size: 1.4rem; color: black; border-top: 1px solid black; }
-      .summary-box { border-top: 1px solid black; }
-      .qr-label { color: black; }
-       @page { size: 80mm auto; margin: 5mm; }
+      body { padding: 0; background: white; }
+      .app-container { box-shadow: none; border: none; width: 100%; padding: 0; }
+      .bill-panel { border: none !important; width: 58mm !important; margin: 0; }
+      @page { size: 58mm auto; margin: 0; }
     }
   </style>
 </head>
 <body>
 
 <div class="top-controls no-print">
+  <h3 style="margin:0; color:var(--primary)">🛒 Mobile Dashboard</h3>
   <button class="ctrl-btn" onclick="toggleTheme()">🌓 Theme</button>
 </div>
 
-<div class="app-container" id="appMain">
+<div class="app-container">
   <div class="entry-panel no-print">
-    <h2 style="color: var(--primary); margin-top: 0;">🛒 Billing Dashboard</h2>
-    <div id="sync-status" style="font-size: 12px; margin-bottom: 10px;">🔄 Syncing Inventory...</div>
+    <div id="sync-status" style="font-size: 11px; margin-bottom: 5px; opacity: 0.7;">🔄 Syncing Inventory...</div>
+    <button class="bt-btn"style="font-size: 11px" id="connectBT" onclick="connectBluetooth()">🔗 Connect Thermal Printer (BT)</button>
 
-    <div class="input-group">
+    <div class="input-group" style="margin-top:10px;">
       <label>Product Name</label>
       <input type="text" id="pSearch" placeholder="Search item..." autocomplete="off">
       <div id="suggestions"></div>
 
       <div style="display: flex; gap: 10px;">
-        <div style="flex: 1;">
+        <div style="flex: 1.5;">
           <label>MRP (₹)</label>
-          <input type="number" id="pMRP" placeholder="0.00" inputmode="decimal">
+          <input type="number" id="pMRP" placeholder="0.00">
         </div>
         <div style="flex: 1;">
           <label>Qty</label>
-          <input type="number" id="pQty" value="1" step="0.01" inputmode="decimal">
+          <input type="number" id="pQty" value="" step="0.01">
         </div>
       </div>
 
-      <label>Select Unit (Add to invoice)</label>
+      <label>Unit</label>
       <div class="unit-selector">
-        <button class="unit-btn" onclick="quickAdd('Kg', this)">KG</button>
-        <button class="unit-btn" onclick="quickAdd('grams', this)">GM</button>
-        <button class="unit-btn" onclick="quickAdd('pcs', this)">PCS</button>
-        <button class="unit-btn" onclick="quickAdd('ltr', this)">L</button>
+        <button class="unit-btn active" onclick="quickAdd('Kg')">KG</button>
+        <button class="unit-btn" onclick="quickAdd('grams')">GM</button>
+        <button class="unit-btn" onclick="quickAdd('pcs')">PCS</button>
+        <button class="unit-btn" onclick="quickAdd('ltr')">L</button>
       </div>
 
-      <button class="add-btn" onclick="addItem()">ADD TO INVOICE (ENTER)</button>
+      <button class="add-btn" onclick="addItem()">+ ADD ITEM</button>
     </div>
     
     <button class="print-btn" onclick="printBill()">🖨️ PRINT RECEIPT</button>
@@ -136,21 +122,20 @@
 
   <div class="bill-panel" id="printableBill">
     <div style="text-align: center;">
-      <h3 style="margin: 0;">CHENNA MALLESHWARA PROVISION STORE</h3>
-      <p style="margin: 2px; font-size: 0.8rem;">#4-43, Madakasira - 515301</p>
-      <p style="margin: 2px; font-size: 0.75rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
-        Date: <span id="billDate"></span> | Bill: #<span id="billNo"></span>
-      </p>
+      <strong style="font-size: 1rem;">CHENNA MALLESHWARA PROVISION STORE</strong><br>
+      <span style="font-size: 0.7rem;">#4-43,Gandhi Bazaar, Madakasira - 515301,Contact:9441018885</span><br>
+      <span style="font-size: 0.7rem; border-top: 1px dashed #000000; display:block; margin-top:5px; padding-top: 1px;">
+        <span id="billDate"></span> | #<span id="billNo"></span>
+      </span>
     </div>
 
     <table>
       <thead>
         <tr>
-          <th style="width: 45%;">Items</th>
+          <th>Items</th>
           <th>Qty</th>
           <th>Price</th>
           <th style="text-align: right;">Total</th>
-          <th class="no-print"></th>
         </tr>
       </thead>
       <tbody id="billBody"></tbody>
@@ -159,28 +144,29 @@
     <div class="summary-box">
       <div class="summary-row"><span>Items:</span> <span id="totQty">0</span></div>
       <div class="summary-row"><span>Total:</span> <span id="Total">₹0.00</span></div>
-      <div class="grand-total">Net: ₹<span id="netPayable">0.00</span></div>
-      
+      <div class="grand-total">Net Payable: ₹<span id="netPayable">0.00</span></div>
+
       <div class="qr-container">
         <div id="qrcode"></div>
         <div class="qr-label">Scan to Pay via UPI</div>
       </div>
     </div>
 
-    <div style="text-align: center; margin-top: 15px; font-size: 0.75rem; border-top: 1px dashed var(--table-text); padding-top: 5px;">
-      <p>THANK YOU. VISIT AGAIN!</p>
+    <div style="text-align: center; font-size: 0.75rem; margin-top: 10px; border-top: 1px dashed #000000; padding-top: 5px;">
+      🙏 THANK YOU. VISIT AGAIN! 😊
     </div>
   </div>
 </div>
 
 <script>
-  const UPI_ID = "9133003838@ybl"; 
+  const UPI_ID = "9441018885@ybl"; 
   const STORE_NAME = "Chenna Malleshwara Store";
   const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQF6tUzPPv0vZI-8ZxzlPMqpAzBZ4QIovDhFDkTrObeCnAQ5uThQTyKT9a8l2la_pWaxEMtuPio0aIR/pub?output=csv';
   
   let inventory = [];
   let itemsInBill = [];
-  let selectedUnit = 'kg';
+  let selectedUnit = 'Kg';
+  let bluetoothDevice, bluetoothCharacteristic;
   let qrcode = new QRCode(document.getElementById("qrcode"), { width: 100, height: 100 });
 
   document.getElementById('billDate').innerText = new Date().toLocaleDateString();
@@ -195,10 +181,9 @@
         return { name: cols[0]?.trim(), price: parseFloat(cols[1]) || 0 };
       }).filter(i => i.name);
       document.getElementById('sync-status').innerText = "✅ " + inventory.length + " Items Online";
-    } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline"; }
+    } catch (e) { document.getElementById('sync-status').innerText = "⚠️ Offline Mode"; }
   }
-
-  document.getElementById('pSearch').addEventListener('input', (e) => {
+document.getElementById('pSearch').addEventListener('input', (e) => {
     let q = e.target.value.toLowerCase();
     let s = document.getElementById('suggestions');
     s.innerHTML = '';
@@ -206,20 +191,40 @@
     inventory.filter(i => i.name.toLowerCase().includes(q)).slice(0,8).forEach(item => {
       let d = document.createElement('div');
       d.className = 'suggestion-item';
-      d.innerText = `${item.name} (₹${item.price})`;
+      d.innerText = item.name; 
       d.onclick = () => {
         document.getElementById('pSearch').value = item.name;
-        document.getElementById('pMRP').value = item.price;
         s.innerHTML = '';
-        document.getElementById('pQty').focus();
+        document.getElementById('pMRP').focus(); 
       };
       s.appendChild(d);
     });
   });
 
-  function quickAdd(u, btn) {
+  document.getElementById('pSearch').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('pMRP').focus();
+    }
+  });
+
+  document.getElementById('pMRP').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('pQty').focus();
+    }
+  });
+
+  document.getElementById('pQty').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') {
+        e.preventDefault();
+        addItem(); 
+    }
+  });
+
+  function quickAdd(u) {
     selectedUnit = u;
-    addItem();
+    addItem(); 
   }
 
   function addItem() {
@@ -228,15 +233,17 @@
     const qty = parseFloat(document.getElementById('pQty').value);
     if (!name || isNaN(mrp)) return;
 
-    const actualQty = (selectedUnit === 'grams' || selectedUnit === 'g') ? qty / 1000 : qty;
+    const actualQty = selectedUnit === 'grams' ? qty / 1000 : qty;
     const lineTotal = mrp * actualQty;
 
     itemsInBill.push({ name, qty, unit: selectedUnit, mrp, lineTotal });
     updateBill();
     
+    // Reset fields
     document.getElementById('pSearch').value = "";
     document.getElementById('pMRP').value = "";
     document.getElementById('pQty').value = "1";
+    selectedUnit='kg';
     document.getElementById('pSearch').focus();
   }
 
@@ -247,7 +254,7 @@
 
     itemsInBill.forEach((item, index) => {
       sub += item.lineTotal;
-      body.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}${item.unit}</td><td>${item.mrp}</td><td style="text-align:right">${item.lineTotal.toFixed(2)}</td><td class="no-print"><button onclick="removeItem(${index})" style="cursor:pointer; background:none; border:none; color:var(--danger); padding: 5px;">✕</button></td></tr>`;
+      body.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}${item.unit}</td><td>${item.mrp}</td><td style="text-align:right">${item.lineTotal.toFixed(2)}</td><td class="no-print"><button onclick="removeItem(${index})" style="cursor:pointer; background:none; border:none; color:var(--danger)">✕</button></td></tr>`;
     });
 
     const net = Math.round(sub);
@@ -264,12 +271,31 @@
 
   function removeItem(idx) { itemsInBill.splice(idx, 1); updateBill(); }
 
+  // 1. Bluetooth Printer Connection
+  async function connectBluetooth() {
+    try {
+      bluetoothDevice = await navigator.bluetooth.requestDevice({
+        filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }, { namePrefix: 'BT' }, { namePrefix: 'Printer' }],
+        optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+      });
+      const server = await bluetoothDevice.gatt.connect();
+      const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+      const characteristics = await service.getCharacteristics();
+      bluetoothCharacteristic = characteristics[0];
+      document.getElementById('connectBT').innerText = "✅ Printer Connected";
+      document.getElementById('connectBT').style.background = "#34a853";
+    } catch (e) {
+      alert("Bluetooth Connection Failed: " + e);
+    }
+  }
+
+  // 2. Standard Print Logic
   function printBill() {
     if(itemsInBill.length === 0) return;
     window.print();
     let nextNo = parseInt(document.getElementById('billNo').innerText) + 1;
     localStorage.setItem('lastBillNo', nextNo);
-    setTimeout(() => { location.reload(); }, 1000); 
+    setTimeout(() => location.reload(), 1000); 
   }
 
   function toggleTheme() {
@@ -279,10 +305,8 @@
     localStorage.setItem('theme', target);
   }
 
- 
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
-
   window.onload = loadInventory;
 </script>
 </body>
